@@ -1,0 +1,11 @@
+# 组合式API：setup（）
+- 组合式API的入口函数，所有组合式API都可以放入到setup内部执行
+- 执行时间：组件被创建之前beforeCreate，到props被解析之后created
+- 使用组合式API时，没有beforeCreate和created生命周期函数
+- setup的参数
+  - props：props选项的引用
+  - ctx：
+    - attrs -> this.$attrs
+    - slots -> this.$slots
+    - emit -> this.$emit
+    - expose -> 暴露属性给父组件
