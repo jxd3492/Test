@@ -4,6 +4,8 @@
   - [VUE的使用](#vue的使用)
     - [VUE基础知识](#vue基础知识)
     - [Vue高级特性](#vue高级特性)
+    - [Vuex](#vuex)
+    - [vue-router](#vue-router)
   - [VUE原理](#vue原理)
   - [VUE面试真题](#vue面试真题)
   - [VUE3](#vue3)
@@ -181,6 +183,24 @@
       - 多mixin可能会造成命名冲突。
       - 多mixin和组件可能会出现多对多的关系，复杂度较高。
     - Vue3提出的Composition API旨在解决这些问题
+### Vuex
+- state
+- getters
+- actions
+- mutations
+- dispatch
+- commit
+- mapState
+- mapGetters
+- mapActions
+- mapMutations
+### vue-router
+- 路由模式
+  - hash
+  - H5 history：需要server端支持，因此无特殊需求可选择前者
+- 路由配置
+  - 动态路由
+  - 懒加载：import（）函数
 ## VUE原理
 
 ## VUE面试真题
