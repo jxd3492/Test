@@ -7,6 +7,12 @@
     - [Vuex](#vuex)
     - [vue-router](#vue-router)
   - [VUE原理](#vue原理)
+    - [组件化](#组件化)
+    - [响应式](#响应式)
+    - [vdom和diff](#vdom和diff)
+    - [模版编译](#模版编译)
+    - [渲染过程](#渲染过程)
+    - [前端路由](#前端路由)
   - [VUE面试真题](#vue面试真题)
   - [VUE3](#vue3)
   - [REACT的使用](#react的使用)
@@ -202,7 +208,138 @@
   - 动态路由
   - 懒加载：import（）函数
 ## VUE原理
-
+### 组件化
+- 数据驱动视图（MVVM，setState）
+  - 传统组件只是静态渲染，更新还要依赖于操作DOM
+  - MVVM就是通过数据去驱动视图更新，不用去操作DOM更新视图
+### 响应式
+- 数据驱动视图的第一步：组件data的数据变化，立刻触发视图更新
+  - 核心API-Object.defineProperty实现响应式
+    - 如何实现？
+      ```jsx
+      const data = {};
+      const name = 'zhangsan';
+      Object.defineproperty(data, "na",{
+        //获取旧数据
+        get(){
+          cosole.log('get');
+          return name;
+        },
+        //更新新数据
+        set(newVal){
+          console.log('set');
+          name = newVal;
+        }
+      })
+      ```
+    - 如何深度监听data变化（数组、深层对象）
+      ```jsx
+      //触发更新视图
+      function updateView() {
+        cosnole.log('视图更新');
+      }
+      // 重新定义数组原型
+      const oldArrayProperty = Array.prototype;
+      // 创建新对象，原型指向oldArrayProperty，在扩展新的方法不会影响原型
+      const arrPro = Object.create(oldArrayProperty);
+      ['push', 'pop', 'unshift'].forEach((item) => {
+          arrPro[item] = function () { // 执行arrPro的内置属性方法的时候触发
+            // oldArrayProperty数组的原型方法
+            oldArrayProperty[item].call(this, ...arguments);
+          }
+      })
+      //重新定义属性，监听起来
+      function defineReactive(target,key,value) {
+        //深度监听
+        observer（value）;
+        //核心API
+        Object.defineReactive(target,key,{
+          get() {
+            return value;
+          }，
+          set(newValue) {
+            if（newValue != value） {
+              //深度监听
+              observer(newValue);
+              //设置新值
+              //注意，value一直在闭包中，此处设置完之后，再get时也是会获取最新的值
+              value = newValue;
+              //触发更新视图
+              updateView();
+            }
+          }
+        },)
+      }
+      //监听对象属性
+      function observer(target) {
+        if(type of target !== 'object' || target === null) {
+          //不是对象或数据
+          return target;
+        }
+        //重新定义各个属性(for in 也可以遍历数组)
+        for(let key in target) {
+          defineReactive(target,key,target[key]);
+        }
+      }
+      //准备数据
+      const data = {
+        name: 'zhangsan',
+        age: 20,
+        info: {
+          address: '北京' //需要深度监听
+        }
+      };
+      //监听数据
+      observer（data）;
+      //测试
+      data.name = ‘lisi’;
+      data.age = 21;
+      data.info.address = ‘上海’;//深度监听
+      ```
+    - 缺点（Vue3改用proxy）：
+      - 深度监听，需要递归到底，一次性计算量大
+      - 无法监听新增属性、删除属性
+      - 无法原生监听数组，需要特殊处理
+### vdom和diff
+DOM操作非常耗费性能
+- Vue和React是数据驱动视图，如何有效控制DOM操作？
+  - vdom：用js模拟DOM结构，计算出最小的变更，操作DOM
+    - js模拟DOM结构
+      - vnode——json树结构
+    - diff算法计算出最小变更
+      - 只比较同一层级，不跨级比较
+      - tag不同，则直接删除重建，不再深度比较
+      - tag和key两者都相同，则认为是相同节点，不再深度比较
+### 模版编译
+- 前置知识：JS的with语法
+  - 改变{}内自由变量的查找规则，当作obj属性来查找
+  - 如果找不到匹配的obj属性，就会报错
+  - with要慎用，它打破了作用域的规则，导致可读性变差
+- vue template complier将模版编译为render函数
+- 执行render函数生成vnode
+- 基于vnode在执行patch和diff
+- 使用webpack vue-loader会在开发环境下编译模版
+### 渲染过程
+- 初次渲染过程
+  - 解析模版为render函数（或在开发环境已完成，vue-loader）
+  - 触发响应式，监听data属性getter setter
+  - 执行render函数，生成vnode，patch（elem，vnode）
+- 更新过程
+  - 修改data，触发setter（此前在getter中已被监听）
+  - 重新执行render函数，生成newVnode
+  - patch（vnode，newVnode）
+- 异步渲染
+  - $nextTick：待DOM渲染完再回调
+  - 汇总data的修改，减少DOM操作次数，一次性更新时图，提高性能
+### 前端路由
+- hash路由
+  - window.onhashchange
+  - hash变化会触发网页跳转
+  - hash变化不会刷新页面，SPA必须的特点
+  - hash永远不会提交到server端
+- H5 history路由
+  - history.pushState
+  - window.onpopstate
 ## VUE面试真题
 
 ## VUE3
