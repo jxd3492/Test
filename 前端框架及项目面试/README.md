@@ -13,6 +13,7 @@
     - [模版编译](#模版编译)
     - [渲染过程](#渲染过程)
     - [前端路由](#前端路由)
+  - [VUE总结](#vue总结)
   - [VUE面试真题](#vue面试真题)
   - [VUE3](#vue3)
   - [REACT的使用](#react的使用)
@@ -340,6 +341,15 @@ DOM操作非常耗费性能
 - H5 history路由
   - history.pushState
   - window.onpopstate
+## VUE总结
+1. MVVM 模式最终实现了数据模型和视图的解耦，ViewModel 和 View 之间为双向绑定关系，以数据驱动视图。把开发者从传统的 DOM 操作中解放出来，更专注于业务开发。同时，这也让开发大型复杂项目得以实现。
+2. Vue 2.x 中使用 Object.defineProperty 来实现数据响应化，通过遍历对象的每一个属性，设置他们的访问器属性，在其中进行依赖收集和更新操作。优点是兼容性好 IE 9+，缺点就是主动递归响应化的特性在数据量很大的场景下会造成性能急剧下降，且默认无法响应对象属性的新增和删除操作，需要额外调用 Vue.set 和 Vue.delete。同时无法响应数组中数据的变化，需要通过装饰数组原型方法实现。
+3. Vnode 即虚拟的 DOM 节点。是使用 JS 对象描述的 DOM 结构，可以通过它渲染出真实 DOM。相比直接操作真实 DOM，它更加灵活和高效。一方面来说，对它的操作并不会立马触发页面重新渲染，充分利用了JS 的事件循环机制实现异步更新。另一方面，通过优化过的 Diff 算法以最小代价实现差量更新。
+4. 组件化是由来已久的话题，通过它可以抽离公用模块，解耦业务逻辑，提升项目的可维护性、可扩展性、可复用性、可测试性，拥抱工程化的理念。
+5. 一个完整的 Vue 文件由 template、script 和 style 组成。在开发环境中由 vue-loader 进行解析，内部涉及 sfc-template-compiler 对模板进行编译，生成 render 函数。babel -loader 对脚本进行处理，postcss 相关loader 对样式进行处理。
+6. Vue 组件的渲染更新流程主要分初始渲染阶段、数据更新阶段以及 Patch 阶段。初始阶段根据现有的模板编译出 render 函数，并对模板中的依赖进行收集，生成 watcher，最后执行 Patch 渲染界面。数据更新阶段数据发生变化会触发访问器setter，并触发相应 watcher 重新执行，基于 template 生成新的 render 函数，最终通过 Patch 实现差量更新界面。Patch 中最核心的方法就是 patchVnode 和 updateChildren，patch 通过同层比较代替深度遍历，极大的降低了时间复杂度，patchVnode 中对比新老 vnode 的真实 DOM，对其做一些新增、删除、替换和复用操作，对于新老 vnode 同时存在子节点的情况，继续使用 updateChildren 更新子节点，在这个方法里，使用了经典的双指针算法进行双端对比，同时结合交叉采样比对，以最小代价找出差异并得出最终 DOM 结构。
+7. Vue-router 为Vue 提供了单页面路由的支持，它支持 3 种模式，hash 模式、history 模式和abstract 模式。hash 模式通过监听 hashchange 事件更换页面内容，兼容性好。history 模式通过监听 popstate 事件替换页面内容，SEO 友好但兼容不佳，且需要后端配置兜底页面。abstract 是非浏览器环境（无头模式）下的模式，通常是服务端渲染场景使用，大部分人都用不到。
+8. Vuex 是一个集中式的状态管理模块，它为 Vue 项目提供一个全局的可预测的状态管理能力。它和 Vue 一样都是遵循单向数据流的，一个基本的 vuex 模块（store）包含 state、getters、mutations 和 actions。其中 state 中为状态值，mutations 中为修改 state 的同步操作，actions 中为修改 state 的异步操作。vuex 本事也是一个响应式模型，所以可以和 Vue 完全配合起来。修改数据时，不是直接修改 state 中的值，而是通过 commit 或 dispatch 发送一条指令给 store，实现一种可预测的间接修改。这和 redux 中的reducer 是类似的。
 ## VUE面试真题
 
 ## VUE3
