@@ -16,6 +16,10 @@
   - [VUE总结](#vue总结)
   - [VUE面试真题](#vue面试真题)
   - [VUE3](#vue3)
+    - [Vue3升级了那些重要功能](#vue3升级了那些重要功能)
+    - [如何理解ref toRef和toRefs](#如何理解ref-toref和torefs)
+      - [vue3为什么会存在reactive和ref？](#vue3为什么会存在reactive和ref)
+      - [Vue3 ref是否可以替代reactive？](#vue3-ref是否可以替代reactive)
   - [REACT的使用](#react的使用)
   - [REACT原理](#react原理)
   - [REACT面试真题](#react面试真题)
@@ -353,6 +357,90 @@ DOM操作非常耗费性能
 ## VUE面试真题
 
 ## VUE3
+### Vue3升级了那些重要功能
+- createApp
+  ```jsx
+  //vue2
+  const app = new Vue({})
+  //vue3
+  const app = Vue.createApp({})
+  //vue2
+  Vue.use()
+  Vue.mixin()
+  Vue.component()
+  //vue3
+  app.use()
+  app.mixin()
+  app.component()
+  ```
+- emits属性
+  ```jsx
+  //父组件
+  <SonDemo @onEventFn="onEventFn"></SonDemo>
+  {
+    emits:['onEventFn']
+  }
+  //子组件
+  {
+    emits:['onEventFn']
+  }
+  setup(props, {emit}){
+    emit('onEventFn',)
+  }
+  ```
+- 生命周期
+  - Vue3生命周期
+    - beforeDestroy和destory改为beforeUnmouted和mouted
+    - setup相当于beforeCreate 和 created
+    - 其他的 on + Vue2 的生命周期
+- 多事件
+  - 一个监听起立可以绑定多个事件函数
+- Fragment
+  - vue2模版中只能用一个div包裹
+  - vue3可以有多个div块
+- 移除.sync
+- 异步组件的写法
+  ```jsx
+  //Vue2
+  components:{
+    'my-component':() => import(...)
+  }
+  //Vue3
+  import { defineAsyncComponent } from 'vue';
+  components:{
+    AsyncComponent:defineAsyncComponent(() => import(...))
+  }
+  ```
+- 移除filter
+- Teleport
+  - 它可以将一个组件内部的一部分模板“传送”到该组件的 DOM 结构外层的位置去。
+  ```html
+  <button @click="open = true">Open Modal</button>
+  <!--<Teleport> 接收一个 to prop 来指定传送的目标。to 的值可以是一个 CSS 选择器字符串，也可以是一个 DOM 元素对象。这段代码的作用就是告诉 Vue“把以下模板片段传送到 body 标签下”。-->
+  <Teleport to="body">
+    <div v-if="open" class="modal">
+      <p>Hello from the modal!</p>
+      <button @click="open = false">Close</button>
+    </div>
+  </Teleport>
+  ```
+- Suspense
+  - suspense 是一个内置组件，用来在组件树中协调对异步依赖的处理。它让我们可以在组件树上层等待下层的多个嵌套异步依赖项解析完成，并可以在等待时渲染一个加载状态。
+  ```html
+  <Suspense>
+    <!-- 具有深层异步依赖的组件 -->
+    <AsyncComponent />
+    <!-- 在 #fallback 插槽中显示 “正在加载中” -->
+    <template #fallback>
+      Loading...
+    </template>
+  </Suspense>
+  ```
+- Composition API
+  - Composition API对比Options API
+    - 更好的代码组织
+    - 更好的逻辑复用
+    - 更好的类型推导
 - Vue3对比Vue2的优势
   - 性能更好
   - 体积更小
@@ -360,7 +448,38 @@ DOM操作非常耗费性能
   - 更好的代码组织
   - 更好的逻辑抽离
   - 更多新功能
-- 
+### 如何理解ref toRef和toRefs
+- ref
+  - 生成值类型的响应式数据，值类型命名变量的时候，建议是 xxxRef
+  - 可用于模版和 reactive
+  - 通过 .value 修改值
+  - 为何需要.value？
+    - ref是一个对象（不丢失响应式），value存储值
+    - 所以ref虽然是值类型的响应式数据，但是是一个对象
+    - 通过.value属性的get和set实现响应式
+    - 用于模版、reactive时，不需要.value，其他情况都需要
+- toRef
+  - 针对一个响应式对象（reactive）的prop
+  - 创建一个ref，具有响应式
+  - 两者保持引用关系
+  - toRef如果用于普通对象（非reactive），产出的结果就不具备响应式
+- toRefs
+  - 将响应式对象转换为普通对象
+  - 对象的每个prop属性都是对应的ref响应式数据
+  - 两者保持引用关系
+- 为何需要toRef和toRefs
+  - 初衷：不丢失响应式的情况下，把对象数据分解/扩散
+  - 前提：针对的是响应式对象（reactive封装的），非普通对象
+  - 注意：不创造响应式，而是延续响应式
+- 最佳使用方式
+  - 用reactive做对象的响应式，用ref做值类型的响应式
+  - setup中返回toRefs（state），或者toRef（state, 'xxx'）
+  - 合成函数返回响应式对象时，使用toRefs
+#### vue3为什么会存在reactive和ref？
+  reactive和ref都是 vue3 创建响应式对象的方式，相当于 vue2 的 data里面创建的数据，如果想要使用vue3 CompositionAPI的方式写程序，就必须用reactive和ref 创建响应式对象CompositionAPI的方式不支持vue2 的data，所以才会存在reactive和ref
+#### Vue3 ref是否可以替代reactive？
+  这样做，功能上是可以的。不过按照 vue3 的设计思路来看，目前不推荐这么做。还是尽量使用reactive ，然后值类型使用 ref 。 
+
 ## REACT的使用
 
 ## REACT原理
