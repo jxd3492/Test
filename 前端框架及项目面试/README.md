@@ -16,6 +16,7 @@
   - [VUE总结](#vue总结)
   - [VUE面试真题](#vue面试真题)
   - [VUE3](#vue3)
+    - [Vue3升级了那些重要功能](#vue3升级了那些重要功能)
     - [如何理解ref toRef和toRefs](#如何理解ref-toref和torefs)
       - [vue3为什么会存在reactive和ref？](#vue3为什么会存在reactive和ref)
       - [Vue3 ref是否可以替代reactive？](#vue3-ref是否可以替代reactive)
@@ -399,9 +400,42 @@ DOM操作非常耗费性能
   - vue3可以有多个div块
 - 移除.sync
 - 异步组件的写法
+  ```jsx
+  //Vue2
+  components:{
+    'my-component':() => import(...)
+  }
+  //Vue3
+  import { defineAsyncComponent } from 'vue';
+  components:{
+    AsyncComponent:defineAsyncComponent(() => import(...))
+  }
+  ```
 - 移除filter
 - Teleport
+  - 它可以将一个组件内部的一部分模板“传送”到该组件的 DOM 结构外层的位置去。
+  ```html
+  <button @click="open = true">Open Modal</button>
+  <!--<Teleport> 接收一个 to prop 来指定传送的目标。to 的值可以是一个 CSS 选择器字符串，也可以是一个 DOM 元素对象。这段代码的作用就是告诉 Vue“把以下模板片段传送到 body 标签下”。-->
+  <Teleport to="body">
+    <div v-if="open" class="modal">
+      <p>Hello from the modal!</p>
+      <button @click="open = false">Close</button>
+    </div>
+  </Teleport>
+  ```
 - Suspense
+  - suspense 是一个内置组件，用来在组件树中协调对异步依赖的处理。它让我们可以在组件树上层等待下层的多个嵌套异步依赖项解析完成，并可以在等待时渲染一个加载状态。
+  ```html
+  <Suspense>
+    <!-- 具有深层异步依赖的组件 -->
+    <AsyncComponent />
+    <!-- 在 #fallback 插槽中显示 “正在加载中” -->
+    <template #fallback>
+      Loading...
+    </template>
+  </Suspense>
+  ```
 - Composition API
   - Composition API对比Options API
     - 更好的代码组织
