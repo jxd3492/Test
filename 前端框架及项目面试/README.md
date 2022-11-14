@@ -20,6 +20,7 @@
     - [如何理解ref toRef和toRefs](#如何理解ref-toref和torefs)
       - [vue3为什么会存在reactive和ref？](#vue3为什么会存在reactive和ref)
       - [Vue3 ref是否可以替代reactive？](#vue3-ref是否可以替代reactive)
+    - [Composition API实现逻辑复用](#composition-api实现逻辑复用)
   - [REACT的使用](#react的使用)
   - [REACT原理](#react原理)
   - [REACT面试真题](#react面试真题)
@@ -224,7 +225,7 @@
       ```jsx
       const data = {};
       const name = 'zhangsan';
-      Object.defineproperty(data, "na",{
+      Object.defineproperty(data, "name",{
         //获取旧数据
         get(){
           cosole.log('get');
@@ -479,7 +480,10 @@ DOM操作非常耗费性能
   reactive和ref都是 vue3 创建响应式对象的方式，相当于 vue2 的 data里面创建的数据，如果想要使用vue3 CompositionAPI的方式写程序，就必须用reactive和ref 创建响应式对象CompositionAPI的方式不支持vue2 的data，所以才会存在reactive和ref
 #### Vue3 ref是否可以替代reactive？
   这样做，功能上是可以的。不过按照 vue3 的设计思路来看，目前不推荐这么做。还是尽量使用reactive ，然后值类型使用 ref 。 
-
+### Composition API实现逻辑复用
+- 抽离逻辑代码到一个函数
+- 函数命名月定为useXxxx格式
+- 在setup中引用useXxxx函数
 ## REACT的使用
 
 ## REACT原理
