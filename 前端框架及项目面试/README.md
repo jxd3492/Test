@@ -638,6 +638,8 @@ DOM操作非常耗费性能
 
 ## REACT原理
 
+## REACT hooks
+
 ## REACT面试真题
 
 ## webpack和babel
@@ -676,6 +678,14 @@ devServer: {
 ```
 #### 处理ES6
 - 通过babel将ES6转译为ES5语法
+```jsx
+{
+  test: /\.js$/,
+  loader: ['babel-loader'],
+  includes: srcPath,
+  exclude: /node_modules/
+}
+```
 #### 处理样式
 ```jsx
 {
@@ -728,8 +738,78 @@ output: {
   path: distPath
 }
 ```
+#### 抽离css文件
+```jsx
+//抽离css
+{
+  test: /\.css$/,
+  loader: [
+    MiniCssExtractPlugin.loader,//注意：这里不再使用style-css
+    'css-loader',
+    'postcss-loader'
+  ]
+},
+//抽离less
+{
+  test: /\.less$/,
+  loader: [
+    MiniCssExtractPlugin.loader,
+    'css-loader',
+    'less-loader'
+    'postcss-loader'
+  ]
+}
+//抽离css文件
+plugins: [
+  new MiniCssExtractPlugin({
+    filename: 'css/main.[contentHash:8'].css'
+  })
+]
+//压缩css文件
+optimization: {
+  minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
+}
+```
+#### 抽离公共代码
+```jsx
+//分割代码块
+splitChunks: {
+  chunks: 'all',
+  //initial 入口 chunk,对于异步导入的文件不处理
+  //async 异步 chunk，只对异步导入的文件处理
+  //all 全部 chunk 处理
+  //缓存分组
+  cacheGroups: {
+    //第三方模块
+    vendor: {
+      name: 'vendor',//chunk名称
+      priority: 1,//权限更高，优先抽离，重要！！！
+      test: /node_modules/,
+      minSize: 0,//大小限制
+      minChunks: 1//最少复用过几次
+    }，
+    //公共模块
+    common: {
+      name: 'common',
+      priority: 0,
+      minSize: 0,
+      minChunks: 2
+    }
+  }
+  //缓存分组
+
+}
+```
+#### module chunk bundle的区别
+- module：各个源码文件，webpack中一切皆模块
+- chunk：多个模块的合成，生成的地方entry，import（），splitChunks
+- bundle：最终输出的文件
+### webpack性能优化
+#### 优化打包构建速度——开发体验和效率
+
+#### 优化产出代码——产品性能
+
 ## 项目设计
 
 ## 项目流程
 
-## REACT hooks
