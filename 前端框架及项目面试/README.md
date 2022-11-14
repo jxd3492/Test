@@ -506,12 +506,12 @@ DOM操作非常耗费性能
     - 和Proxy作用一一对应
     - 函数式、规范化、标准化、函数式
   - 代替了Object上的工具函数
-- 使用Proxy实现响应式
+### 使用Proxy实现响应式
   - Proxy性能如何提升？
     - proxy只有在get的时候才做递归，获取到那一层，那一层才开始做响应式的处理
     - proxy可以监听到 新增/删除 属性
     - proxy可以监听到数组的变化
-- v-model用法
+### v-model用法
   - 原父子组件传递值
   ```jsx
   //父组件
@@ -595,13 +595,13 @@ DOM操作非常耗费性能
     }
   </script>
   ```
-- watch和watchEffect的区别
+### watch和watchEffect的区别
   - 两者都可以监听data的变化
   - watch需要明确监听哪个属性
   - watchEffect会根据其中属性，自动监听变化
   - 当需要深度监听对象或数组中的属性时，需要设置deep：true
   - 需要最初就开始执行监听时，需要配置immediate：true
-- setup中如何获取组件实例
+### setup中如何获取组件实例
   - setup和其他Composition API中没有this
   - 通过getCurrentInstance来获取当前实例
   - 需要读取属性值的话，需要在setup中的onMounted函数中读取
