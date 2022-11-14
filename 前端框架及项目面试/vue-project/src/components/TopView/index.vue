@@ -1,23 +1,23 @@
 <template>
     <el-row :gutter="20">
         <el-col :span="6" shadow="hover">
-            <el-card  class="box-card clear">
-                <div class="text item" v-for="o in 4" :key="o">{{ 'List item ' + o }}</div>
+            <el-card  class="box-card">
+                <common-card></common-card>
             </el-card>
         </el-col>
         <el-col :span="6" shadow="hover">
-            <el-card class="box-card clear">
-                <div class="text item" v-for="o in 4" :key="o">{{ 'List item ' + o }}</div>
+            <el-card class="box-card">
+                <common-card></common-card>
             </el-card>
         </el-col>
         <el-col :span="6" shadow="hover">
-            <el-card class="box-card clear">
-                <div class="text item" v-for="o in 4" :key="o">{{ 'List item ' + o }}</div>
+            <el-card class="box-card">
+                <common-card></common-card>
             </el-card>
         </el-col>
         <el-col :span="6" shadow="hover">
-            <el-card class="box-card clear">
-                <div class="text item" v-for="o in 4" :key="o">{{ 'List item ' + o }}</div>
+            <el-card class="box-card">
+                <common-card></common-card>
             </el-card>
         </el-col>
     </el-row>
@@ -25,10 +25,12 @@
   
 <script>
 import { ElCard } from 'element-plus'
+import CommonCard from '../CommonCard/index.vue'
 
 export default ({
     components: {
         ElCard,
+        CommonCard
     },
     setup() {
         return {
