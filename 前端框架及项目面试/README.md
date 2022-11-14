@@ -702,7 +702,7 @@ loader：['style-loader','css-loader','postcss-loader']
 ```
 ### webpack高级配置
 #### 多入口
-```jsx
+```javascript
 //webpack.common.js中
 entry：{
   index: path.join(srcPath, 'index.js'),
