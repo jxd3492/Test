@@ -605,6 +605,35 @@ DOM操作非常耗费性能
   - setup和其他Composition API中没有this
   - 通过getCurrentInstance来获取当前实例
   - 需要读取属性值的话，需要在setup中的onMounted函数中读取
+### Vue3为何比Vue2快
+- proxy
+- PatchFlag静态标记
+  - 编译模板时，标记动态属性
+  - 标记区分不同的类型，如text、prop；
+  - 在diff算法时，可以区分静态节点和不同类型的动态节点，增加效率
+- Hoiststatic静态提升
+  - 将静态节点的定义，提升到父作用域中缓存起来
+  - 多个相邻的静态节点会被合并起来
+  - 典型的拿空间换时间的优化策略
+- CacheHandler缓存事件
+  - 缓存事件
+- SSR和Tree-shaking优化
+  - SSR优化：静态节点直接输出，绕过了vdom
+  - Tree-shaking：按需加载，编译时，根据不同情况，引入不同的API
+### Vite为何启动快
+- 开发环境使用ES6 module，无需打包——非常快
+- 生产环境使用rollup——并不会快很多 
+### Composition API和React Hooks对比
+- 前者setup只会被调用一次，而后者函数会被多次调用
+- 前者无需useMemo useCallback，因为setup只调用一次
+- 前者无需顾虑调用顺序，而后者需要保证hooks的顺序一致
+- 前者reactive + ref比后者useState要更难理解
+### Vue3 script setup——v3.2
+- 基本使用
+  - 顶级变量、自定义组件可直接用于模板
+  - defineProps
+  - defineEmits
+  - defineExpose
 ## REACT的使用
 
 ## REACT原理
@@ -612,7 +641,93 @@ DOM操作非常耗费性能
 ## REACT面试真题
 
 ## webpack和babel
+### webpack基本配置
+#### 拆分配置和merge
+- 一般分为webpack.common.js公共配置、webpack.dev.js生产环境配置、webpack.prod.js开发环境配置
+- 生产与开发环境引入公共配置：
+  ```jsx
+  const { smart } = require('webpack-merge');
+  const webpackCommonConf = require('./webpack.common.js');
+  module.export = smart(webpackCommonConf，{
 
+  })
+  ```
+#### 启动本地服务
+```jsx
+devServer: {
+  port: 8080,
+  progress: true,//显示打包进度条
+  contentBase: disPath,//根目录
+  open: true,//自动打开浏览器
+  compress: true,//启动gzip压缩
+  //设置代理
+  proxy: {
+    //将本地/api/xxx代理到localhost:3000/api/xxx
+    '/api': 'http://localhost:3000',
+    //将本地/api2/xxx代理到localhost:3000/xxx
+    '/api2': {
+      target:'http://localhost:3000',
+      pathRewrite: {
+        '/api2':''
+      }
+    }
+  }
+}
+```
+#### 处理ES6
+- 通过babel将ES6转译为ES5语法
+#### 处理样式
+```jsx
+{
+test:/\.css$/,
+//loader的执行顺序是：从后往前
+loader：['style-loader','css-loader','postcss-loader']
+}
+```
+#### 处理图片
+```jsx
+{
+  test:/\.(png|jpg|jepg|gif)$/,
+  use: {
+    loader: 'url-loader',
+    option: {
+      //小于5kb的图片用base64格式产出
+      //否则，依然沿用file-loader的形式，产出url格式
+      limit: 5 * 1024,
+      //打包到img1目录下
+      outputPath: '/img1/'
+    }
+  }
+}
+```
+### webpack高级配置
+#### 多入口
+```jsx
+//webpack.common.js中
+entry：{
+  index: path.join(srcPath, 'index.js'),
+  other: path.join(srcPath, 'other.js')
+}
+//每有一个html的入口文件，就需要设置一个HtmlWebpackPlugin
+new HtmlWebpackPlugin({
+  template: path.join(srcPath, 'index.html'),
+  filename: 'index.html',
+  //chunks表示该页面需要引用哪些chunk
+  chunks: ['index']//只引用index.js
+})
+new HtmlWebpackPlugin({
+  template: path.join(srcPath, 'other.html'),
+  filename: 'other.html',
+  //chunks表示该页面需要引用哪些chunk
+  chunks: ['other']//只引用index.js
+})
+//webpack.prod.js中
+output: {
+  //name即多入口时，entry的
+  filename: '[name].[contentHash:8].js',
+  path: distPath
+}
+```
 ## 项目设计
 
 ## 项目流程
