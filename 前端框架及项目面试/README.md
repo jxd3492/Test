@@ -806,10 +806,84 @@ splitChunks: {
 - bundle：最终输出的文件
 ### webpack性能优化
 #### 优化打包构建速度——开发体验和效率
+- 优化babel-loader
+  ```jsx
+  {
+    test:/\.js$/,
+    use: ['babel-loader?cacheDirectory'],//开启缓存
+    include: path.resolve(__dirname, 'src'),//明确范围
+    //exclude：path.resolve(__dirname, 'node_modules')//排除范围
+    //include和exclude两者选一个即可
+  }
+  ```
+- IgnorePlugin避免引入无用模块
+  ```jsx
+  //忽略 moment 下的 /locale 目录
+  new webpack.IgnorePlugin(/\.\/locale/,/moment/)
+  ```
+- noParse避免重复打包
+  ```jsx
+  module: {
+    //对完整的'react.min.js'文件就没有采用模块化
+    //忽略对'react.min.js'文件的递归解析处理
+    noParse: [/react\.min\.js$/],
+  }
+  ```
+  IgnorePlugin vs noParse
+  - IgnorePlugin直接不引入，代码中没有
+  - noParse引入，但不打包
+- happyPack多进程打包，提高构建速度（特别是多核CPU）
+  ```jsx
+  {
+    test: /\.js$/,
+    //把对 .js 文件的处理转交给 id 为 babel 的 HappyPack 实例
+    use: ['happypack/loader?id=babel'],
+    include: scrPath
+  }
+  plugin： {
+    // happyPack 开启多进程打包
+    new HappyPack({
+      //用唯一的标识符 id 来代表当前的 HappyPack 是用来处理一类特定的文件
+      id: 'babel',
+      // 如何处理 .js 文件，用法和 Loader 配置中一样
+      loaders: ['babel-loader?cacheDirectory']
+    })
+  }
+  ```
+- ParallelUglifyPlugin多进程压缩JS
+  ```jsx
+  plugin: {
+    new ParallelUglifyPlugin({
+      //传递给 UglifyJS 的参数
+      uglifyJS: {
+        output: {
+          beautify: false,// 最紧凑的输出
+          comments: false// 删除所有注释
+        },
+        compress: {
+          drop_console: true,//删除所有`console`语句，可以兼容IE浏览器
+          collapse_vars:true,//内嵌定义了，但是只用到一次的变量
+          reduce_vars: true//提取出出现多次但是没有定义成变量去引用的静态值
+        }
+      }
+    })
+  }
+  ```
+- 自动刷新
+  ```jsx
 
+  ```
+- 热更新
+  ```jsx
+
+  ```
+- DllPlugin
+  ```jsx
+
+  ```
 #### 优化产出代码——产品性能
 
 ## 项目设计
 
 ## 项目流程
-
+需求分析->技术方案研设计->开发->联调->测试->上线
