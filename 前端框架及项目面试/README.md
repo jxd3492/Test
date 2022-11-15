@@ -840,7 +840,7 @@ splitChunks: {
     use: ['happypack/loader?id=babel'],
     include: scrPath
   }
-  plugin： {
+  plugins： {
     // happyPack 开启多进程打包
     new HappyPack({
       //用唯一的标识符 id 来代表当前的 HappyPack 是用来处理一类特定的文件
@@ -852,7 +852,7 @@ splitChunks: {
   ```
 - ParallelUglifyPlugin多进程压缩JS
   ```jsx
-  plugin: {
+  plugins: {
     new ParallelUglifyPlugin({
       //传递给 UglifyJS 的参数
       uglifyJS: {
@@ -869,20 +869,118 @@ splitChunks: {
     })
   }
   ```
-- 自动刷新
+- 自动刷新（基本无需主动使用）
   ```jsx
-
+  module.export = {
+    watch: true,//开启监听，默认为false
+    //开启监听后，webpack-dev-server 会自动开启刷新浏览器
+    //监听配置
+    watchOptions: {
+      ignored: /node_modules/,//忽略哪些
+      aggregateTimeout: 300,//监听到变化发生后，等300ms再去执行动作，防止文件更新太快导致重新编译频率太高
+      //判断文件是否发生变化是通过不短的去询问系统指定文件有没有变化实现的
+      poll: 1000//默认每个1000ms询问一次
+    }
+  }
   ```
 - 热更新
+  热更新 vs 自动刷新
+  - 自动刷新：整个网页全部刷新，速度较慢，状态会丢失
+  - 热更新：新代码生效，网页不刷新，状态不丢失
   ```jsx
-
+  const HotModuleReplacementPlugin = require('webpack/lib/HotModuleReplacementPlugin');
+  entry: {
+    //index: path.join(srvPath, 'index.js')
+    //热更新需要在原配置基础上，添加两行配置
+    index: [
+      'webpack-dev-server/client?http://localhost:8080/',
+      'webpack/hot/dev-server',
+      path.join(srvPath, 'index.js')
+    ]
+  }
+  plugins: [
+    //应用热更新
+    new HotModuleReplacementPlugin()
+  ]
   ```
-- DllPlugin
   ```jsx
-
+  //然后再index.js中增加开启热更新撞击后的代码逻辑
+  if(module.hot) {
+    // ['./math'] 监听的模块
+    nodule.hot.accept(['./math'], () => {
+      const sunRes = sun(10, 20);
+      console.log('sunRes in hot', sunRes);
+    })
+  }
+  ```
+- DllPlugin动态链接库插件
+  - 前端框架如Vue、React，体积大，构建慢，使用 DllPlugin 后，同一版本只构建一次即可，不用每次都重新构建
+  - webpack 已内置 DllPlugin 支持
+  - DllPlugin 打包出 dll 文件
+  - DllReferncePlugin 使用 dll 文件
+  ```jsx
+  //第一步：配置一个webpack.dll.js文件
+  const path = require('path');
+  const DllPlugin = require('webpack/lib/DllPlugin');
+  const { srcPath, distPath } = require('./paths');
+  module.exports = {
+    mode: 'development',
+    //JS执行入口文件
+    enrty: {
+      //把 React 相关模块都放到一个单独的动态链接库
+      react: ['react', 'react-dom']
+    },
+    output: {
+      //输出的动态链接库的文件名称，[name] 代表当前动态链接库的名称
+      //也就是 entry 中 配置的 react 和 polyfill
+      filename: '[name].dll.js',
+      //输出的文件都放在 dist 目录下
+      path: distPath,
+      //存放动态链接库的全局变量名称，例如对应 react 来说就是 _dll_react
+      //之所以在前面加上 _dll_ 是为了防止全局变量冲突
+      library: '_dll_[name]'
+    }，
+    plugins: [
+      //接入DllPlugin
+      new DllPlugin({
+        //动态链接库的全局变量名称，需要和 output.library 中保持一致
+        //该字段的值也就是输出的 manifest.json 文件中 name 字段的值
+        //例如 react.manifest.json 中就有 "name": "_dll_react"
+        name: '_dll_[name]',
+        //描述动态链接库的 manifest.json 文件输出时的文件名称
+        path: path.join(distPath, '[name].manifest.json')
+      })
+    ]
+  }
+  ```
+  ```jsx
+  //第二步：在index.html中引入[name].dll.js
+  //第三步：引入 DllReferncePlugin
+  const DllReferncePlugin = require('webpack/lib/DllReferncePlugin');
+  export module = smart(webpackCommonConf, {
+    ......
+    plugins: [
+      new DllReferncePlugin({
+        //描述 react 动态链接库的文件内容
+        manifest: require(path.join(distPath, 'react.manifest.json'))
+      })
+    ]
+  })
   ```
 #### 优化产出代码——产品性能
-
+好处：
+  - 体积更小
+  - 合理分包，不重复加载
+  - 速度更快，内存使用更少
+- 小图片 base64 编码
+- bundle 加 hash
+- 懒加载
+- 提取公共代码
+- IngorePlugin
+- 使用 CDN 加速
+- 使用 production
+  - 
+- 使用 Scope Hosting
 ## 项目设计
 
 ## 项目流程
