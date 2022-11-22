@@ -979,8 +979,37 @@ splitChunks: {
 - IngorePlugin
 - 使用 CDN 加速
 - 使用 production
-  - 
+  - 自动开启代码压缩
+  - Vue React等框架会自动删掉调试代码（如开发环境的warning）
+  - 启动 Tree-Shacking：必须是ES module才能生效
+    - ES module 和 Commonjs区别
+      - ES module 是静态引用，编译时引用
+      - Commonjs 是动态引用，执行时引入
+      - 只有 ES module 才能静态分析，实现 Tree-Shacking
 - 使用 Scope Hosting
+  - 代码体积更小
+  - 创建函数作用域更少
+  - 代码可读性更好
+  ```jsx
+  resolve: {
+    //针对 npm 中的第三方模块优先采用 jsnext:main 中指向的 ES6 模块化语法的文件
+    mainFields: ['jsnext:main', 'browser', 'main']
+  },
+  plugins:[
+    // 开启 Scope Hosting
+    new ModuleConcatenationPlugin()
+  ]
+  ```
+### babel
+#### 环境搭建 & 基本配置
+- 环境搭建
+  - 
+- .babelrc 配置
+  - 
+- presets 和 plugins
+  - 
+#### babel-polyfill
+#### babel-runtime
 ## 项目设计
 
 ## 项目流程
