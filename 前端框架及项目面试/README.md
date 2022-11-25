@@ -1002,14 +1002,70 @@ splitChunks: {
   ```
 ### babel
 #### 环境搭建 & 基本配置
-- 环境搭建
-  - 
-- .babelrc 配置
-  - 
-- presets 和 plugins
-  - 
-#### babel-polyfill
+#### babel-polyfill（现已被弃用）
+
+- 什么是polyfill？
+    - 根据浏览器当前的情况，做出兼容
+- core.js 和 regenerator
+- babel-polyfill 即两者的集合
+- 推荐直接使用core.js 和 regenerator
+
+```json
+{
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				//按需引入
+				"useBuiltIns": "usage",
+				//corejs版本
+				"corejs": 3
+			}
+		]
+	]
+}
+```
+
+- babel-polyfill的问题
+    - 会污染全局环境
+    - 解决方法：babel-runtime
 #### babel-runtime
+
+```json
+"plugins": [
+	[
+		"@babel/plugin-transform-runtime",
+		{
+			"absoluteRuntime": false,
+			"corjs": 3,
+			"helper": true,
+			"regenerator": true,
+			"useESModules": false
+		}
+	]
+]
+```
+#### 前端为何进行打包和构建
+- 代码方面
+    - 代码体积更小
+    - 编译高级语言
+    - 兼容性和错误检查
+- 研发方面
+    - 统一高效的开发环境
+    - 统一的构建流程和产出标准
+    - 集成公司构建规范
+
+#### module chunk bundle的区别
+
+- module：各个源码文件
+- chunk：多模块合并成的
+- bundle：最终输出的文件
+
+#### loader 和 plugin 的区别
+
+loader模块转换器，如less→css
+
+plugin扩展插件，如HtmlWebpackPlugin
 ## 项目设计
 
 ## 项目流程
